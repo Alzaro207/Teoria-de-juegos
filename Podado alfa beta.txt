@@ -1,0 +1,115 @@
+def max_alfa_beta(self, alfa, beta):
+              maxv = -2 #Inicializamos el valor maximo con un valor pequeño
+              px = None #Coordenada X del mejor movimiento
+              py = None #Coordenada Y del mejor movimiento
+
+              resultado = self.es_fin() #Ha terminado el juego?
+
+              if resultado == 'X':
+                  return (-1, 0, 0)
+              elif resultado == 'O':
+                  return (1, 0, 0)
+              elif resultado == '.':
+                  return (0, 0, 0)
+
+              for i in range(0, 3): #Recorre el tablero para ver las opciones
+                  for j in range(0, 3):
+                      if self.estado_actual[i][j] == '.': #Si esta vacia,
+                          self.estado_actual[i][j] = 'O' #marcala con el 0
+                          (m, min_i, min_j) = self.min_alfa_beta(alfa, beta) #Se llama al jugador X
+                          if m > maxv:
+                              maxv = m
+                              px = i
+                              py = j
+                          self.estado_actual = '.' #Lo vacia y prueba otro movimiento
+
+                          #Aqui realiza la poda Alfa-Beta
+                          if maxv >= beta:
+                              return (maxv, px, py)
+                          #Actualiza alfa si hubiera un nuevo valor maximo
+                          if maxv > alfa:
+                              alfa = maxv
+
+              return (maxv, px, py) #Devuelve el mejor valor junto con sus coordenadas
+
+def min_alfa_beta(self, alfa, beta):
+
+          minv = 2 #Iniciamos el valor min con un valor alto
+
+          qx = None #Coordenada X del mejor movimiento
+          qy = None #Coordenada Y del mejor movimiento
+
+          resultado = self.es_fin() #Ha terminado el juego?
+
+          if resultado == 'X':
+              return (-1, 0, 0)
+          elif resultado == 'O':
+              return (1, 0, 0)
+          elif resultado == '.':
+              return (0, 0, 0)
+
+          for i in range(0, 3): #Recorre el tablero para ver las opciones
+              for j in range(0, 3):
+                  if self.estado_actual[i][j] == '.': #Si esta vacia,
+                      self.estado_actual[i][j] = 'X' #marcala con la X
+                      (m, max_i, max_j) = self.max_alfa_beta(alfa, beta) #Se llama al jugador 0
+                      if m < minv:
+                          minv = m
+                          qx = i
+                          qy = j
+                      self.estado_actual[i][j] = '.' #Lo vacia y prueba otro movimiento
+                      
+                      #Aqui realiza la poda Alfa-Beta
+                      if minv <= alfa:
+                          return (minv, qx, qy)
+                      #Actualiza beta si hubiera un nuevo valor minimo
+                      if minv < beta:
+                          beta = minv
+
+          return (minv, qx, qy) #Devuelve el mejor valor junto con sus coordenadas
+
+def jugar_alfa_beta(self):
+      #Bucle continuo
+      while True:
+          self.dibujar_tablero() #Dibuja el estado actual del tablero
+          self.resultado = self.es_fin() #Si el juego ha terminado asigna el resultado
+
+          if self.resultado != None: #Si no es None se imprime el resultado y se pregunta si juega de nuevo
+            if self.resultado == 'X':
+                print('Gana X!')
+            elif self.resultado == 'O':
+                print('Gana O!')
+            elif self.resultado == '.':
+                print("Empate")
+
+
+            self.iniciar_juego() #Reinicar o iniciar juego
+            return
+
+          if self.turno_jugador == 'X': #Ingresa el jugador el turno
+
+            while True:
+                inicio = time.time() #Iniciamos el tiempo de la evaluacion
+                (m, qx, qy) = self.min_alfa_beta(-2, 2)
+                fin = time.time() #Finalizamos el tiempo de la evaluacion
+                #Se calcula el tiempo actual y se resta el inicial, redondeando el resultado a 7 decimales
+                print('Tiempo de evaluacion: {}s'.format(round(fin - inicio, 7)))
+                print('Movimiento recomendado: X = {}, Y = {}'.format(qx, qy)) #Movimiento que recomienda la IA hacer
+
+                px = int(input('X coordenada: '))
+                py = int(input('Y coordenada: '))
+
+                qx = px
+                qy = py
+
+                if self.es_valido(px, py): #Se verifica si el movimiento es valido
+                    self.estado_actual[px][py] = 'X' #Se graba en el tablero la opcion elegida con la X
+                    self.turno_jugador = 'O' #Proximo movimiento del otro jugador IA
+                    break
+                else:
+                    print('Movimiento no valido. Prueba con otro movimiento.')
+
+          else:
+            (m, px, py) = self.max_alfa_beta(-2, 2) #Llama a la funcion para crear el movimiento de la IA
+            self.estado_actual[px][py] = 'O' #Realiza el movimiento de la IA
+            self.turno_jugador = 'X' #Pasa el turno de nuevo al jugador X
